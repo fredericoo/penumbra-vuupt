@@ -12,6 +12,7 @@
 function pnmbr_vuupt_register_settings() {
    add_option( 'pnmbr_vuupt_api', 'This is my option value.');
    register_setting( 'pnmbr_vuupt_options_group', 'pnmbr_vuupt_api', 'pnmbr_vuupt_callback' );
+   register_setting( 'pnmbr_vuupt_options_group', 'pnmbr_vuupt_maps_api', 'pnmbr_vuupt_callback' );
 }
 add_action( 'admin_init', 'pnmbr_vuupt_register_settings' );
 
@@ -34,6 +35,10 @@ function pnmbr_vuupt_options_page()
   <tr valign="top">
   <th scope="row"><label for="pnmbr_vuupt_api">API Key</label></th>
   <td><input type="text" id="pnmbr_vuupt_api" name="pnmbr_vuupt_api" value="<?php echo get_option('pnmbr_vuupt_api'); ?>" /></td>
+  </tr>
+  <tr valign="top">
+  <th scope="row"><label for="pnmbr_vuupt_maps_api">Google maps Javascript API Key</label></th>
+  <td><input type="text" id="pnmbr_vuupt_maps_api" name="pnmbr_vuupt_maps_api" value="<?php echo get_option('pnmbr_vuupt_maps_api'); ?>" /></td>
   </tr>
   </table>
   <?php  submit_button(); ?>
