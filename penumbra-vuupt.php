@@ -223,7 +223,7 @@ function formatted_shipping_address($order) {
 function getGeocodeData($address)
 {
     $address = urlencode($address);
-    $googleMapUrl = "https://maps.googleapis.com/maps/api/geocode/json?address={$address}&key=AIzaSyAjBCtXyKi93aIMOTi5s5wDSkYQ_TC5aQ0";
+    $googleMapUrl = "https://maps.googleapis.com/maps/api/geocode/json?address={$address}&key=".get_option('pnmbr_vuupt_maps_api');;
     $geocodeResponseData = curl_get_contents($googleMapUrl);
     $responseData = json_decode($geocodeResponseData, true);
     if ($responseData['status'] == 'OK') {
