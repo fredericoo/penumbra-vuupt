@@ -132,6 +132,8 @@ function pnmbr_add_to_vuupt( $order_id ){
 
       if ($order->get_payment_method() == 'cod') {
         $ordertitle = '[R$ '.$order->get_total().'] ';
+      } else if ($order->get_payment_method() == 'gerencianet_oficial') {
+        $ordertitle = '[BB '.$order->get_total().'] ';
       } else {
         $ordertitle = '[PG] ';
       }
