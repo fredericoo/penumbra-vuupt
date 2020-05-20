@@ -54,7 +54,7 @@ add_action( 'woocommerce_thankyou', 'pnmbr_add_to_vuupt');
 
 add_action('woocommerce_order_status_changed', 'pnmbr_update_orderstatus', 20, 4 );
 function pnmbr_update_orderstatus( $order_id, $old_status, $new_status, $order ){
-    if ( $old_status == 'waiting' && $new_status == 'processing' ) {
+    if ( $old_status == 'on-hold' && $new_status == 'processing' ) {
       pnmbr_add_to_vuupt($order_id);
     }
 }
@@ -96,7 +96,7 @@ function pnmbr_add_to_vuupt( $order_id ){
 
         // Only add Marmitas
         //if ( has_term( 'marmita', 'product_cat', $product_id ) ) {
-
+          $status = $order->get_status();
 	       	$name		= $order->billing_first_name;
         	$surname	= $order->billing_last_name;
         	$email		= $order->billing_email;
@@ -139,7 +139,7 @@ function pnmbr_add_to_vuupt( $order_id ){
 
       if ($order->get_payment_method() == 'cod') {
         $ordertitle = '[R$ '.$order->get_total().'] ';
-      } else if ($order->get_payment_method() == 'gerencianet_oficial') {
+      } else if ($order->get_payment_method() == 'gerencianet_oficial' && $status == 'on-hold') {
         $ordertitle = '[BB '.$order->get_total().'] ';
       } else {
         $ordertitle = '[PG] ';
