@@ -52,6 +52,13 @@ function pnmbr_vuupt_options_page()
 
 add_action( 'woocommerce_thankyou', 'pnmbr_add_to_vuupt');
 
+add_action('woocommerce_order_status_changed', 'pnmbr_update_orderstatus', 20, 4 );
+function pnmbr_update_orderstatus( $order_id, $old_status, $new_status, $order ){
+    if ( $old_status == 'waiting' && $new_status == 'processing' ) {
+      pnmbr_add_to_vuupt($order_id);
+    }
+}
+
 add_action('wp_insert_post', function($order_id)
 {
     if(!did_action('woocommerce_checkout_order_processed')
