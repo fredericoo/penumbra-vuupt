@@ -10,7 +10,8 @@
 
 
 function pnmbr_vuupt_register_settings() {
-   add_option( 'pnmbr_vuupt_api', 'This is my option value.');
+   add_option( 'pnmbr_vuupt_api', '');
+   add_option( 'pnmbr_vuupt_maps_api', '');
    register_setting( 'pnmbr_vuupt_options_group', 'pnmbr_vuupt_api', 'pnmbr_vuupt_callback' );
    register_setting( 'pnmbr_vuupt_options_group', 'pnmbr_vuupt_maps_api', 'pnmbr_vuupt_callback' );
 }
