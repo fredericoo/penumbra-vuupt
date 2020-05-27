@@ -94,6 +94,11 @@ function pnmbr_add_to_vuupt( $order_id ){
 
         // Only add Marmitas
         //if ( has_term( 'marmita', 'product_cat', $product_id ) ) {
+        if (!$order) {
+          $order->add_order_note('não foi possível coletar dados do pedido.');
+          return false;
+        }
+
           $status = $order->get_status();
 	       	$name		= $order->billing_first_name;
         	$surname	= $order->billing_last_name;
@@ -113,7 +118,6 @@ function pnmbr_add_to_vuupt( $order_id ){
 
           $geocoded = getGeocodeData($address);
           if ($geocoded) {
-            $order->add_order_note($address);
             $order->add_order_note(print_r($geocoded,true));
 					$body_customer = array(
 						"name"	=> "{$name} {$surname}",
