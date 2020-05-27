@@ -110,7 +110,9 @@ function pnmbr_add_to_vuupt( $order_id ){
         	$url_customer = 'https://api.vuupt.com/api/v1/customers'.($customer_id ? '/'.$customer_id : '');
         	$url_service = 'https://api.vuupt.com/api/v1/services'.($service_id ? '/'.$service_id : '');
 
+
           $geocoded = getGeocodeData($address);
+          if ($geocoded) {
 
 					$body_customer = array(
 						"name"	=> "{$name} {$surname}",
@@ -222,6 +224,11 @@ function pnmbr_add_to_vuupt( $order_id ){
       }
 
 			return true;
+
+    } else {
+      $order->add_order_note( 'erro ao geocodar endereço: '.$geocodederror );
+      return false;
+    }
 }
 
 function formatted_shipping_address($order) {
@@ -236,6 +243,7 @@ function formatted_shipping_address($order) {
 
 function getGeocodeData($address)
 {
+    $geocodederror = '';
     $address = urlencode($address);
     $googleMapUrl = "https://maps.googleapis.com/maps/api/geocode/json?address={$address}&key=".get_option('pnmbr_vuupt_maps_api');;
     $geocodeResponseData = curl_get_contents($googleMapUrl);
@@ -251,11 +259,11 @@ function getGeocodeData($address)
                 'longitude' => $longitude,
             ];
         } else {
-            return 'weird error.';
+            $geocodederror = 'weird error.';
             return false;
         }
     } else {
-        return "ERROR: {$responseData['status']}";
+        $geocodederror = "ERROR: {$responseData['status']}";
         return false;
     }
 }
