@@ -50,16 +50,16 @@ function pnmbr_vuupt_options_page()
 
 // PLUGIN ACTIONS
 
-//add_action( 'woocommerce_thankyou', 'pnmbr_add_to_vuupt');
+add_action( 'woocommerce_thankyou', 'pnmbr_add_to_vuupt');
 
-add_action('woocommerce_order_status_changed', 'pnmbr_update_orderstatus', 20, 4 );
+add_action('woocommerce_order_status_changedNO', 'pnmbr_update_orderstatus', 20, 4 );
 function pnmbr_update_orderstatus( $order_id, $old_status, $new_status, $order ){
     if ( ($old_status == 'on-hold' || $old_status == 'pending') && ($new_status == 'processing' || $new_status == 'completed')) {
       pnmbr_add_to_vuupt($order_id);
     }
 }
 
-add_action('wp_insert_post', function($order_id)
+add_action('wp_insert_postNO', function($order_id)
 {
     if(!did_action('woocommerce_checkout_order_processed')
         && get_post_type($order_id) == 'shop_order'
