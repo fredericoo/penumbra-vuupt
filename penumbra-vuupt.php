@@ -113,7 +113,7 @@ function pnmbr_add_to_vuupt( $order_id ){
 
           $geocoded = getGeocodeData($address);
           if ($geocoded) {
-
+            $order->add_order_note(print_r($geocoded,true));
 					$body_customer = array(
 						"name"	=> "{$name} {$surname}",
 						"address" 		=> $address,
@@ -259,12 +259,11 @@ function getGeocodeData($address)
                 'longitude' => $longitude,
             ];
         } else {
-            $geocodederror = 'weird error.';
+            return 'não foi possível formatar a latitude, longitude, endereço.';
             return false;
         }
     } else {
-        $geocodederror = "ERROR: {$responseData['status']}";
-        return false;
+        return "erro: {$responseData['status']}";
     }
 }
 
