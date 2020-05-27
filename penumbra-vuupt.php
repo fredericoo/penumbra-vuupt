@@ -52,14 +52,14 @@ function pnmbr_vuupt_options_page()
 
 add_action( 'woocommerce_thankyou', 'pnmbr_add_to_vuupt');
 
-add_action('woocommerce_order_status_changed', 'pnmbr_update_orderstatus', 20, 4 );
+add_action('woocommerce_order_status_changedNO', 'pnmbr_update_orderstatus', 20, 4 );
 function pnmbr_update_orderstatus( $order_id, $old_status, $new_status, $order ){
     if ( ($old_status == 'on-hold' || $old_status == 'pending') && ($new_status == 'processing' || $new_status == 'completed')) {
       pnmbr_add_to_vuupt($order_id);
     }
 }
 
-add_action('wp_insert_post', function($order_id)
+add_action('wp_insert_postNO', function($order_id)
 {
     if(!did_action('woocommerce_checkout_order_processed')
         && get_post_type($order_id) == 'shop_order'
@@ -92,10 +92,13 @@ function pnmbr_add_to_vuupt( $order_id ){
     // $product_id = $item['product_id'];
     // $product = new WC_Product($item['product_id']);
 
-
-
         // Only add Marmitas
         //if ( has_term( 'marmita', 'product_cat', $product_id ) ) {
+        if (!$order) {
+          $order->add_order_note('não foi possível coletar dados do pedido.');
+          return false;
+        }
+
           $status = $order->get_status();
 	       	$name		= $order->billing_first_name;
         	$surname	= $order->billing_last_name;
@@ -112,7 +115,9 @@ function pnmbr_add_to_vuupt( $order_id ){
         	$url_customer = 'https://api.vuupt.com/api/v1/customers'.($customer_id ? '/'.$customer_id : '');
         	$url_service = 'https://api.vuupt.com/api/v1/services'.($service_id ? '/'.$service_id : '');
 
+
           $geocoded = getGeocodeData($address);
+          if (is_array($geocoded)) {
 
 					$body_customer = array(
 						"name"	=> "{$name} {$surname}",
@@ -137,14 +142,14 @@ function pnmbr_add_to_vuupt( $order_id ){
 
 			$vars = json_decode($response['body'],true);
 
-      if ($order->get_payment_method() == 'cod') {
+      if ($order->get_payment_method() == 'cod' || $order->get_payment_method() == 'bacs') {
         $ordertitle = '[R$ '.$order->get_total().'] ';
       } else if ($order->get_payment_method() == 'gerencianet_oficial' && $status == 'on-hold') {
         $ordertitle = '[BB '.$order->get_total().'] ';
       } else {
         $ordertitle = '[PG] ';
       }
-			$ordertitle .= $order_id;
+			$ordertitle .= .'#'.order_id;
       $ordertitle .= ($notes ? '→'.$notes : '');
 
 			//LOOP ALL THE PRODUCTS IN THE CART
@@ -196,8 +201,6 @@ function pnmbr_add_to_vuupt( $order_id ){
 				"scheduled_end" => $next_delivery." 21:00:00",
 			);
 
-			// $order->add_order_note( 'agendado para '.$deliveryperiod.':'.$orderdate.'->'.$next_delivery );
-
       $response = wp_remote_post( $url_service,
 				array(
 					'headers'   => array(
@@ -211,29 +214,52 @@ function pnmbr_add_to_vuupt( $order_id ){
 
 			$vars_service = json_decode($response['body'],true);
 
-      // Add order note with customer ID
-      $order->add_order_note( 'service id: '.$service_id ?: $vars_service['service']['id'] );
-			// Adding meta to avoid duplicity
-			update_post_meta($order_id, 'customer_id', $customer_id ?: $vars['customer']['id'] );
-			update_post_meta($order_id, 'service_id', $service_id ?: $vars_service['service']['id'] );
+      if ($vars_service['service']['id'] || $service_id) {
+        // Adding meta to avoid duplicity
+        update_post_meta($order_id, 'customer_id', $customer_id ?: $vars['customer']['id'] );
+        update_post_meta($order_id, 'service_id', $service_id ?: $vars_service['service']['id'] );
+
+        // Add order note with customer ID
+        $order->add_order_note( 'VUUPT: Service ID '.$service_id ?: $vars_service['service']['id'].' agendado para '.$deliveryperiod.':'.$orderdate.'->'.$next_delivery );
+
+      } else {
+        $order->add_order_note( 'erro ao criar serviço: '.print_r($vars_service,true) );
+        $order->add_order_note( 'erro ao criar cliente: '.print_r($vars,true) );
+      }
 
 			return true;
+
+    } else {
+      $order->add_order_note(print_r($geocoded,true));
+      $order->add_order_note( 'erro ao geocodar endereço. certifique-se de que a <a href="'.get_home_url().'/wp-admin/options-general.php?page=pnmbr_vuupt">chave de API está correta</a> e os módulos instalados: Geocoding API, Maps Javascript API' );
+      return false;
+    }
 }
 
 function formatted_shipping_address($order) {
+  if ($order->shipping_address_1) {
     return
-        $order->shipping_address_1 .
-        $order->shipping_number . ', ' .
-        $order->shipping_city      . ', ' .
-        $order->shipping_state     . ' ' .
-        $order->shipping_postcode;
+    $order->shipping_address_1 .' '.
+    $order->shipping_number . ', ' .
+    $order->shipping_city      . ', ' .
+    $order->shipping_state     . ' ' .
+    $order->shipping_postcode;
+  } else {
+    return
+    $order->billing_address_1 .' '.
+    $order->billing_number . ', ' .
+    $order->billing_city      . ', ' .
+    $order->billing_state     . ' ' .
+    $order->billing_postcode;
+  }
 }
 
 
 function getGeocodeData($address)
 {
+    $geocodederror = '';
     $address = urlencode($address);
-    $googleMapUrl = "https://maps.googleapis.com/maps/api/geocode/json?address={$address}&key=".get_option('pnmbr_vuupt_maps_api');;
+    $googleMapUrl = "https://maps.googleapis.com/maps/api/geocode/json?address={$address}&key=".get_option('pnmbr_vuupt_maps_api');
     $geocodeResponseData = curl_get_contents($googleMapUrl);
     $responseData = json_decode($geocodeResponseData, true);
     if ($responseData['status'] == 'OK') {
@@ -247,12 +273,11 @@ function getGeocodeData($address)
                 'longitude' => $longitude,
             ];
         } else {
-            return 'weird error.';
+            return 'não foi possível formatar a latitude, longitude, endereço.';
             return false;
         }
     } else {
-        return "ERROR: {$responseData['status']}";
-        return false;
+        return "erro: {$responseData['status']}";
     }
 }
 
