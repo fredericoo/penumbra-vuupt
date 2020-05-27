@@ -217,8 +217,8 @@ function pnmbr_add_to_vuupt( $order_id ){
         // Add order note with customer ID
         $order->add_order_note( 'service id: '.$service_id ?: $vars_service['service']['id'] );
       } else {
-        $order->add_order_note( 'erro ao criar serviço: '.$vars_service );
-        $order->add_order_note( 'erro ao criar cliente: '.$vars );
+        $order->add_order_note( 'erro ao criar serviço: '.print_r($vars_service,true) );
+        $order->add_order_note( 'erro ao criar cliente: '.print_r($vars,true) );
       }
 
 			return true;
