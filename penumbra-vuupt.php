@@ -113,6 +113,7 @@ function pnmbr_add_to_vuupt( $order_id ){
 
           $geocoded = getGeocodeData($address);
           if ($geocoded) {
+            $order->add_order_note($address);
             $order->add_order_note(print_r($geocoded,true));
 					$body_customer = array(
 						"name"	=> "{$name} {$surname}",
