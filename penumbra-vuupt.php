@@ -50,7 +50,7 @@ function pnmbr_vuupt_options_page()
 
 // PLUGIN ACTIONS
 
-add_action( 'woocommerce_thankyou', 'pnmbr_add_to_vuupt');
+//add_action( 'woocommerce_thankyou', 'pnmbr_add_to_vuupt');
 
 add_action('woocommerce_order_status_changed', 'pnmbr_update_orderstatus', 20, 4 );
 function pnmbr_update_orderstatus( $order_id, $old_status, $new_status, $order ){
@@ -226,7 +226,7 @@ function pnmbr_add_to_vuupt( $order_id ){
 			return true;
 
     } else {
-      $order->add_order_note( 'erro ao geocodar endereço: '.$geocodederror );
+      $order->add_order_note( 'erro ao geocodar endereço. certifique-se de que a <a href="'.get_home_url().'/wp-admin/options-general.php?page=pnmbr_vuupt">chave de API está correta</a> e os módulos instalados: Geocoding API, Maps Javascript API' );
       return false;
     }
 }
@@ -245,7 +245,7 @@ function getGeocodeData($address)
 {
     $geocodederror = '';
     $address = urlencode($address);
-    $googleMapUrl = "https://maps.googleapis.com/maps/api/geocode/json?address={$address}&key=".get_option('pnmbr_vuupt_maps_api');;
+    $googleMapUrl = "https://maps.googleapis.com/maps/api/geocode/json?address={$address}&key=".get_option('pnmbr_vuupt_maps_api');
     $geocodeResponseData = curl_get_contents($googleMapUrl);
     $responseData = json_decode($geocodeResponseData, true);
     if ($responseData['status'] == 'OK') {
