@@ -92,8 +92,6 @@ function pnmbr_add_to_vuupt( $order_id ){
     // $product_id = $item['product_id'];
     // $product = new WC_Product($item['product_id']);
 
-
-
         // Only add Marmitas
         //if ( has_term( 'marmita', 'product_cat', $product_id ) ) {
           $status = $order->get_status();
@@ -137,7 +135,7 @@ function pnmbr_add_to_vuupt( $order_id ){
 
 			$vars = json_decode($response['body'],true);
 
-      if ($order->get_payment_method() == 'cod') {
+      if ($order->get_payment_method() == 'cod' || $order->get_payment_method() == 'bacs') {
         $ordertitle = '[R$ '.$order->get_total().'] ';
       } else if ($order->get_payment_method() == 'gerencianet_oficial' && $status == 'on-hold') {
         $ordertitle = '[BB '.$order->get_total().'] ';
