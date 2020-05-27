@@ -108,6 +108,8 @@ function pnmbr_add_to_vuupt( $order_id ){
           $address = formatted_shipping_address($order);
         	$apikey 	= get_option('pnmbr_vuupt_api');
 
+          $order->add_order_note($name);
+
 					$service_id = get_post_meta( $order_id, 'service_id' )[0];
 					$customer_id = get_post_meta( $order_id, 'customer_id' )[0];
 
