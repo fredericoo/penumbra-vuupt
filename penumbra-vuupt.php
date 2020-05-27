@@ -211,11 +211,17 @@ function pnmbr_add_to_vuupt( $order_id ){
 
 			$vars_service = json_decode($response['body'],true);
 
-      // Add order note with customer ID
-      $order->add_order_note( 'service id: '.$service_id ?: $vars_service['service']['id'] );
-			// Adding meta to avoid duplicity
-			update_post_meta($order_id, 'customer_id', $customer_id ?: $vars['customer']['id'] );
-			update_post_meta($order_id, 'service_id', $service_id ?: $vars_service['service']['id'] );
+      if ($vars_service['service']['id'] || $service_id) {
+        // Adding meta to avoid duplicity
+        update_post_meta($order_id, 'customer_id', $customer_id ?: $vars['customer']['id'] );
+        update_post_meta($order_id, 'service_id', $service_id ?: $vars_service['service']['id'] );
+
+        // Add order note with customer ID
+        $order->add_order_note( 'service id: '.$service_id ?: $vars_service['service']['id'] );
+      } else {
+        $order->add_order_note( 'erro ao criar serviço: '.$vars_service );
+        $order->add_order_note( 'erro ao criar cliente: '.$vars );
+      }
 
 			return true;
 }
