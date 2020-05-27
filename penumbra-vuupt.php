@@ -108,8 +108,6 @@ function pnmbr_add_to_vuupt( $order_id ){
           $address = formatted_shipping_address($order);
         	$apikey 	= get_option('pnmbr_vuupt_api');
 
-          $order->add_order_note($address);
-
 					$service_id = get_post_meta( $order_id, 'service_id' )[0];
 					$customer_id = get_post_meta( $order_id, 'customer_id' )[0];
 
@@ -203,8 +201,6 @@ function pnmbr_add_to_vuupt( $order_id ){
 				"scheduled_end" => $next_delivery." 21:00:00",
 			);
 
-			// $order->add_order_note( 'agendado para '.$deliveryperiod.':'.$orderdate.'->'.$next_delivery );
-
       $response = wp_remote_post( $url_service,
 				array(
 					'headers'   => array(
@@ -224,7 +220,8 @@ function pnmbr_add_to_vuupt( $order_id ){
         update_post_meta($order_id, 'service_id', $service_id ?: $vars_service['service']['id'] );
 
         // Add order note with customer ID
-        $order->add_order_note( 'service id: '.$service_id ?: $vars_service['service']['id'] );
+        $order->add_order_note( 'VUUPT: Service ID '.$service_id ?: $vars_service['service']['id'].' agendado para '.$deliveryperiod.':'.$orderdate.'->'.$next_delivery );
+
       } else {
         $order->add_order_note( 'erro ao criar serviço: '.print_r($vars_service,true) );
         $order->add_order_note( 'erro ao criar cliente: '.print_r($vars,true) );
@@ -242,14 +239,14 @@ function pnmbr_add_to_vuupt( $order_id ){
 function formatted_shipping_address($order) {
   if ($order->shipping_address_1) {
     return
-    $order->shipping_address_1 .
+    $order->shipping_address_1 .' '.
     $order->shipping_number . ', ' .
     $order->shipping_city      . ', ' .
     $order->shipping_state     . ' ' .
     $order->shipping_postcode;
   } else {
     return
-    $order->billing_address_1 .
+    $order->billing_address_1 .' '.
     $order->billing_number . ', ' .
     $order->billing_city      . ', ' .
     $order->billing_state     . ' ' .
