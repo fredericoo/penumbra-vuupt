@@ -117,8 +117,8 @@ function pnmbr_add_to_vuupt( $order_id ){
 
 
           $geocoded = getGeocodeData($address);
-          if ($geocoded) {
-            $order->add_order_note(print_r($geocoded,true));
+          if (is_array($geocoded)) {
+
 					$body_customer = array(
 						"name"	=> "{$name} {$surname}",
 						"address" 		=> $address,
@@ -231,6 +231,7 @@ function pnmbr_add_to_vuupt( $order_id ){
 			return true;
 
     } else {
+      $order->add_order_note(print_r($geocoded,true));
       $order->add_order_note( 'erro ao geocodar endereço. certifique-se de que a <a href="'.get_home_url().'/wp-admin/options-general.php?page=pnmbr_vuupt">chave de API está correta</a> e os módulos instalados: Geocoding API, Maps Javascript API' );
       return false;
     }
