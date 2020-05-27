@@ -108,7 +108,7 @@ function pnmbr_add_to_vuupt( $order_id ){
           $address = formatted_shipping_address($order);
         	$apikey 	= get_option('pnmbr_vuupt_api');
 
-          $order->add_order_note($order->shipping_address_1);
+          $order->add_order_note($address);
 
 					$service_id = get_post_meta( $order_id, 'service_id' )[0];
 					$customer_id = get_post_meta( $order_id, 'customer_id' )[0];
@@ -240,12 +240,21 @@ function pnmbr_add_to_vuupt( $order_id ){
 }
 
 function formatted_shipping_address($order) {
+  if ($order->shipping_address_1) {
     return
-        $order->shipping_address_1 .
-        $order->shipping_number . ', ' .
-        $order->shipping_city      . ', ' .
-        $order->shipping_state     . ' ' .
-        $order->shipping_postcode;
+    $order->shipping_address_1 .
+    $order->shipping_number . ', ' .
+    $order->shipping_city      . ', ' .
+    $order->shipping_state     . ' ' .
+    $order->shipping_postcode;
+  } else {
+    return
+    $order->billing_address_1 .
+    $order->billing_number . ', ' .
+    $order->billing_city      . ', ' .
+    $order->billing_state     . ' ' .
+    $order->billing_postcode;
+  }
 }
 
 
