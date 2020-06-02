@@ -1,12 +1,13 @@
 <?php
-add_filter( 'woocommerce_get_order_item_totals', 'pnmbr_add_vuupt_review', 10, 2 );
 
-function pnmbr_add_vuupt_review( $total_rows, $myorder_obj ) {
+add_action( 'woocommerce_cart_totals_before_shipping', 'pnmbr_vuupt_review' , 99);
+add_action( 'woocommerce_review_order_before_shipping', 'pnmbr_vuupt_review' , 99);
+function pnmbr_vuupt_review() {
+    ?>
+        <tr>
+            <th><?php __('Data da entrega','penumbra') ?></th>
+            <td>000000</td>
+        </tr>
 
-$total_rows['vuuupt_shipping'] = array(
-   'label' => __( 'Data da entrega:', 'woocommerce' ),
-   'value'   => print_r('$myorder_obj',true)
-);
-
-return $total_rows;
+    <?php
 }
