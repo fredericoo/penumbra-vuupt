@@ -150,7 +150,7 @@ function pnmbr_add_to_vuupt( $order_id ){
       } else {
         $ordertitle = '[PG] ';
       }
-			$ordertitle .= '#'.order_id;
+			$ordertitle .= '#'.$order_id;
       $ordertitle .= ($notes ? '→'.$notes : '');
 
 			//LOOP ALL THE PRODUCTS IN THE CART
@@ -190,14 +190,14 @@ function pnmbr_add_to_vuupt( $order_id ){
       $items = $order->get_items();
     	foreach ( $items as $item ) {
         $product_id = $item['product_id'];
-        switch (get_field('vuupt_override')) {
+        switch (get_field('vuupt_override', $product_id)) {
           case 'none':
             break;
           case 'date':
-            $next_delivery = get_field('vuupt_date');
+            $next_delivery = get_field('vuupt_date', $product_id);
             break;
           case 'next':
-            $next_delivery = date('Y-m-d', strtotime(get_field('vuupt_next'), strtotime($order->get_date_created()) ));
+            $next_delivery = date('Y-m-d', strtotime(get_field('vuupt_next', $product_id), strtotime($order->get_date_created()) ));
             break;
         }
       }
