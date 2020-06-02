@@ -176,32 +176,7 @@ function pnmbr_add_to_vuupt( $order_id ){
 			$dotw =  date( 'D', $order->get_date_created ()->getOffsetTimestamp());
   		$ampm = date( 'a', $order->get_date_created ()->getOffsetTimestamp());
 
-			if (($dotw == 'Mon' && $ampm == 'am') ) {
-		    $deliveryperiod = 'next tuesday';
-		  } else if (($dotw == 'Thu' && $ampm == 'pm') || (in_array ( $dotw, ['Fri', 'Sat', 'Sun']) )) {
-		    $deliveryperiod = 'next tuesday';
-		  } else if ($dotw == 'Thu' && $ampm == 'am') {
-		    $deliveryperiod = 'next friday';
-		  } else {
-		    $deliveryperiod = 'next friday';
-		  }
-
-			$next_delivery = date('Y-m-d', strtotime($deliveryperiod, strtotime($order->get_date_created()) ));
-
-      $items = $order->get_items();
-    	foreach ( $items as $item ) {
-        $product_id = $item['product_id'];
-        switch (get_field('vuupt_override', $product_id)) {
-          case 'none':
-            break;
-          case 'date':
-            $next_delivery = get_field('vuupt_date', $product_id);
-            break;
-          case 'next':
-            $next_delivery = date('Y-m-d', strtotime(get_field('vuupt_next', $product_id), strtotime($order->get_date_created()) ));
-            break;
-        }
-      }
+			$next_delivery = get_delivery_when($order);
         // $product = new WC_Product($item['product_id']);
             // Only add Marmitas
             //if ( has_term( 'marmita', 'product_cat', $product_id ) ) {
@@ -312,4 +287,34 @@ function curl_get_contents($url)
     curl_close($ch);
 
     return $data;
+}
+
+function get_delivery_when($order) {
+  if (($dotw == 'Mon' && $ampm == 'am') ) {
+    $deliveryperiod = 'next tuesday';
+  } else if (($dotw == 'Thu' && $ampm == 'pm') || (in_array ( $dotw, ['Fri', 'Sat', 'Sun']) )) {
+    $deliveryperiod = 'next tuesday';
+  } else if ($dotw == 'Thu' && $ampm == 'am') {
+    $deliveryperiod = 'next friday';
+  } else {
+    $deliveryperiod = 'next friday';
+  }
+
+  $items = $order->get_items();
+  foreach ( $items as $item ) {
+    $product_id = $item['product_id'];
+    switch (get_field('vuupt_override', $product_id)) {
+      case 'none':
+        break;
+      case 'date':
+        return get_field('vuupt_date', $product_id);
+        break;
+      case 'next':
+        return date('Y-m-d', strtotime(get_field('vuupt_next', $product_id), strtotime($order->get_date_created()) ));
+        break;
+    }
+  }
+
+  return date('Y-m-d', strtotime($deliveryperiod, strtotime($order->get_date_created()) ));
+
 }
