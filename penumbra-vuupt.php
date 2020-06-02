@@ -8,6 +8,7 @@
 * Author URI: https://penumbra.design/
 **/
 
+include( plugin_dir_path( __FILE__ ) . 'front-end/custom-fields.php');
 
 function pnmbr_vuupt_register_settings() {
    add_option( 'pnmbr_vuupt_api', '');
@@ -175,17 +176,34 @@ function pnmbr_add_to_vuupt( $order_id ){
   		$ampm = date( 'a', $order->get_date_created ()->getOffsetTimestamp());
 
 			if (($dotw == 'Mon' && $ampm == 'am') ) {
-		    $deliveryperiod = 'tuesday';
+		    $deliveryperiod = 'next tuesday';
 		  } else if (($dotw == 'Thu' && $ampm == 'pm') || (in_array ( $dotw, ['Fri', 'Sat', 'Sun']) )) {
-		    $deliveryperiod = 'tuesday';
+		    $deliveryperiod = 'next tuesday';
 		  } else if ($dotw == 'Thu' && $ampm == 'am') {
-		    $deliveryperiod = 'friday';
+		    $deliveryperiod = 'next friday';
 		  } else {
-		    $deliveryperiod = 'friday';
+		    $deliveryperiod = 'next friday';
 		  }
 
-			$next_delivery = date('Y-m-d', strtotime("next ".$deliveryperiod, strtotime($order->get_date_created()) ));
+			$next_delivery = date('Y-m-d', strtotime($deliveryperiod, strtotime($order->get_date_created()) ));
 
+      $items = $order->get_items();
+    	foreach ( $items as $item ) {
+        $product_id = $item['product_id'];
+        switch (get_field('vuupt_override')) {
+          case 'none':
+            break;
+          case 'date':
+            $next_delivery = get_field('vuupt_date');
+            break;
+          case 'next':
+            $next_delivery = date('Y-m-d', strtotime(get_field('vuupt_next'), strtotime($order->get_date_created()) ));
+            break;
+        }
+      }
+        // $product = new WC_Product($item['product_id']);
+            // Only add Marmitas
+            //if ( has_term( 'marmita', 'product_cat', $product_id ) ) {
 
       $body_service = array(
 				"title"	=> $ordertitle,
