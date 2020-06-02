@@ -8,7 +8,7 @@ function pnmbr_vuupt_review($order_id) {
     ?>
         <tr>
             <th><?php echo __('Data da entrega','penumbra') ?></th>
-            <td><?php echo get_delivery_when($order) ?></td>
+            <td><?php echo $order_id ?></td>
         </tr>
 
     <?php
