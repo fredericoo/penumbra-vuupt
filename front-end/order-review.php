@@ -9,7 +9,7 @@ function pnmbr_vuupt_review() {
 ?>
         <tr>
             <th><?php echo __('Data da entrega','penumbra') ?></th>
-            <td><?php echo date_i18n( __('F j, Y','penumbra'), strtotime(get_delivery_when($woocommerce->cart->get_cart(), current_time('Y-m-d')))) ?></td>
+            <td><?php echo date_i18n( __('j \d\e F \d\e Y','penumbra'), strtotime(get_delivery_when($woocommerce->cart->get_cart(), current_time('Y-m-d')))) ?></td>
         </tr>
 
     <?php
