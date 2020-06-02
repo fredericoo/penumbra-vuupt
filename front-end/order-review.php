@@ -6,12 +6,10 @@ function pnmbr_vuupt_review() {
 
   global $woocommerce;
 
-  get_delivery_when($woocommerce->cart->get_cart(), current_time('Y-m-d'))
-
 ?>
         <tr>
             <th><?php echo __('Data da entrega','penumbra') ?></th>
-            <td><?php echo $order_id ?></td>
+            <td><?php echo get_delivery_when($woocommerce->cart->get_cart(), current_time('Y-m-d')) ?></td>
         </tr>
 
     <?php
