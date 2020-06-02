@@ -9,6 +9,7 @@
 **/
 
 include( plugin_dir_path( __FILE__ ) . 'front-end/custom-fields.php');
+include( plugin_dir_path( __FILE__ ) . 'front-end/order-review.php');
 
 function pnmbr_vuupt_register_settings() {
    add_option( 'pnmbr_vuupt_api', '');
