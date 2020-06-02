@@ -150,7 +150,7 @@ function pnmbr_add_to_vuupt( $order_id ){
       } else {
         $ordertitle = '[PG] ';
       }
-			$ordertitle .= .'#'.order_id;
+			$ordertitle .= '#'.order_id;
       $ordertitle .= ($notes ? '→'.$notes : '');
 
 			//LOOP ALL THE PRODUCTS IN THE CART

@@ -1,6 +1,6 @@
-<?php if( function_exists('pnmbr_add_vuupt_fields') ):
+<?php if( function_exists('acf_add_local_field_group') ):
 
-pnmbr_add_vuupt_fields(array(
+acf_add_local_field_group(array(
 	'key' => 'group_5ed6a1162c008',
 	'title' => 'VUUPT',
 	'fields' => array(
