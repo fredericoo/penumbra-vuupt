@@ -173,10 +173,10 @@ function pnmbr_add_to_vuupt( $order_id ){
 			// $dimension = (int)array_sum($cart_prods_m3) ** (1/3);
 
 			$orderdate = date( 'Y-m-d', $order->get_date_created()->getOffsetTimestamp());
-			$dotw =  date( 'D', $order->get_date_created ()->getOffsetTimestamp());
-  		$ampm = date( 'a', $order->get_date_created ()->getOffsetTimestamp());
+			$dotw =  date( 'D', $order->get_date_created()->getOffsetTimestamp());
+  		$ampm = date( 'a', $order->get_date_created()->getOffsetTimestamp());
 
-			$next_delivery = get_delivery_when($order);
+			$next_delivery = get_delivery_when($order->get_items(),$order->get_date_created());
         // $product = new WC_Product($item['product_id']);
             // Only add Marmitas
             //if ( has_term( 'marmita', 'product_cat', $product_id ) ) {
@@ -289,7 +289,7 @@ function curl_get_contents($url)
     return $data;
 }
 
-function get_delivery_when($order) {
+function get_delivery_when($items, $date_created) {
   if (($dotw == 'Mon' && $ampm == 'am') ) {
     $deliveryperiod = 'next tuesday';
   } else if (($dotw == 'Thu' && $ampm == 'pm') || (in_array ( $dotw, ['Fri', 'Sat', 'Sun']) )) {
@@ -300,7 +300,6 @@ function get_delivery_when($order) {
     $deliveryperiod = 'next friday';
   }
 
-  $items = $order->get_items();
   foreach ( $items as $item ) {
     $product_id = $item['product_id'];
     switch (get_field('vuupt_override', $product_id)) {
@@ -310,11 +309,10 @@ function get_delivery_when($order) {
         return get_field('vuupt_date', $product_id);
         break;
       case 'next':
-        return date('Y-m-d', strtotime(get_field('vuupt_next', $product_id), strtotime($order->get_date_created()) ));
+        return date('Y-m-d', strtotime(get_field('vuupt_next', $product_id), strtotime($date_created) ));
         break;
     }
   }
 
-  return date('Y-m-d', strtotime($deliveryperiod, strtotime($order->get_date_created()) ));
-
+  return date('Y-m-d', strtotime($deliveryperiod, strtotime($date_created) ));
 }
