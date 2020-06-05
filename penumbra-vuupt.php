@@ -288,17 +288,7 @@ function curl_get_contents($url)
     return $data;
 }
 
-function get_delivery_when($items, $date_create,$dotw,$ampm) {
-
-  if (($dotw == 'Mon' && $ampm == 'am') ) {
-    $deliveryperiod = 'next tuesday';
-  } else if (($dotw == 'Thu' && $ampm == 'pm') || (in_array ( $dotw, ['Fri', 'Sat', 'Sun']) )) {
-    $deliveryperiod = 'next tuesday';
-  } else if ($dotw == 'Thu' && $ampm == 'am') {
-    $deliveryperiod = 'next friday';
-  } else {
-    $deliveryperiod = 'next friday';
-  }
+function get_delivery_when($items, $date_create, $dotw, $ampm) {
 
   foreach ( $items as $item ) {
     $product_id = $item['product_id'];
@@ -314,5 +304,14 @@ function get_delivery_when($items, $date_create,$dotw,$ampm) {
     }
   }
 
+  if (($dotw == 'Mon' && $ampm == 'am') ) {
+    $deliveryperiod = 'next tuesday';
+  } else if (($dotw == 'Thu' && $ampm == 'pm') || (in_array ( $dotw, ['Fri', 'Sat', 'Sun']) )) {
+    $deliveryperiod = 'next tuesday';
+  } else if ($dotw == 'Thu' && $ampm == 'am') {
+    $deliveryperiod = 'next friday';
+  } else {
+    $deliveryperiod = 'next friday';
+  }
   return date('Y-m-d', strtotime($deliveryperiod, strtotime($date_created) ));
 }
