@@ -288,7 +288,7 @@ function curl_get_contents($url)
     return $data;
 }
 
-function get_delivery_when($items, $date_create, $dotw, $ampm) {
+function get_delivery_when($items, $date_created, $dotw, $ampm) {
 
   foreach ( $items as $item ) {
     $product_id = $item['product_id'];
