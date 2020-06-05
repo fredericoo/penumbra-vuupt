@@ -172,10 +172,6 @@ function pnmbr_add_to_vuupt( $order_id ){
       }
 			// $dimension = (int)array_sum($cart_prods_m3) ** (1/3);
 
-			$orderdate = date( 'Y-m-d', $order->get_date_created()->getOffsetTimestamp());
-			$dotw =  date( 'D', $order->get_date_created()->getOffsetTimestamp());
-  		$ampm = date( 'a', $order->get_date_created()->getOffsetTimestamp());
-
 			$next_delivery = get_delivery_when($order->get_items(),$order->get_date_created());
         // $product = new WC_Product($item['product_id']);
             // Only add Marmitas
@@ -290,6 +286,11 @@ function curl_get_contents($url)
 }
 
 function get_delivery_when($items, $date_created) {
+
+  $orderdate = date( 'Y-m-d', $order->get_date_created()->getOffsetTimestamp());
+  $dotw =  date( 'D', $order->get_date_created()->getOffsetTimestamp());
+  $ampm = date( 'a', $order->get_date_created()->getOffsetTimestamp());
+
   if (($dotw == 'Mon' && $ampm == 'am') ) {
     $deliveryperiod = 'next tuesday';
   } else if (($dotw == 'Thu' && $ampm == 'pm') || (in_array ( $dotw, ['Fri', 'Sat', 'Sun']) )) {
