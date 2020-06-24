@@ -12,40 +12,77 @@ include( plugin_dir_path( __FILE__ ) . 'front-end/custom-fields.php');
 include( plugin_dir_path( __FILE__ ) . 'front-end/order-review.php');
 
 function pnmbr_vuupt_register_settings() {
+  global $weekdays;
+  global $timesofday;
+  $weekdays = ['mon' => 'Segunda-feira', 'tue' => 'Terça-feira', 'wed' => 'Quarta-feira', 'thu' => 'Quinta-feira', 'fri' => 'Sexta-feira', 'sat' => 'Sábado', 'sun' => 'Domingo'];
+  $timesofday = ['am','pm'];
    add_option( 'pnmbr_vuupt_api', '');
    add_option( 'pnmbr_vuupt_maps_api', '');
    register_setting( 'pnmbr_vuupt_options_group', 'pnmbr_vuupt_api', 'pnmbr_vuupt_callback' );
    register_setting( 'pnmbr_vuupt_options_group', 'pnmbr_vuupt_maps_api', 'pnmbr_vuupt_callback' );
+
+   foreach ($weekdays as $wd => $label) {
+    foreach ($timesofday as $ampm) {
+      add_option( 'pnmbr_vuupt_schedule_'.$wd.'_'.$ampm, 'next day');
+      register_setting( 'pnmbr_vuupt_options_group', 'pnmbr_vuupt_schedule_'.$wd.'_'.$ampm, 'pnmbr_vuupt_callback' );
+    }
+   }
 }
 add_action( 'admin_init', 'pnmbr_vuupt_register_settings' );
 
 function pnmbr_vuupt_register_options_page() {
-  add_options_page('Page Title', 'VUUPT', 'manage_options', 'pnmbr_vuupt', 'pnmbr_vuupt_options_page');
+  add_options_page('Integração Vuupt', 'VUUPT', 'manage_options', 'pnmbr_vuupt', 'pnmbr_vuupt_options_page');
 }
 add_action('admin_menu', 'pnmbr_vuupt_register_options_page');
 
 function pnmbr_vuupt_options_page()
 {
+  global $weekdays;
+  global $timesofday;
 ?>
   <div>
   <?php screen_icon(); ?>
-  <h2>Penumbra Vuupt Integration</h2>
+  <h2>Integração Vuupt</h2>
   <form method="post" action="options.php">
   <?php settings_fields( 'pnmbr_vuupt_options_group' ); ?>
-  <h3>Settings</h3>
-  <p>Here you'll find the settings for integrating Vuupt into your woocommerce store.</p>
+  <h4>Configurações de API</h4>
   <table>
-  <tr valign="top">
-  <th scope="row"><label for="pnmbr_vuupt_api">API Key</label></th>
-  <td><input type="text" id="pnmbr_vuupt_api" name="pnmbr_vuupt_api" value="<?php echo get_option('pnmbr_vuupt_api'); ?>" /></td>
-  </tr>
-  <tr valign="top">
-  <th scope="row"><label for="pnmbr_vuupt_maps_api">Google maps Javascript API Key</label></th>
-  <td><input type="text" id="pnmbr_vuupt_maps_api" name="pnmbr_vuupt_maps_api" value="<?php echo get_option('pnmbr_vuupt_maps_api'); ?>" /></td>
-  </tr>
+    <tr valign="top">
+      <th scope="row"><label for="pnmbr_vuupt_api">API Key</label></th>
+      <td><input type="text" id="pnmbr_vuupt_api" name="pnmbr_vuupt_api" value="<?php echo get_option('pnmbr_vuupt_api'); ?>" /></td>
+    </tr>
+    <tr valign="top">
+      <th scope="row"><label for="pnmbr_vuupt_maps_api">Google maps Javascript API Key</label></th>
+      <td><input type="text" id="pnmbr_vuupt_maps_api" name="pnmbr_vuupt_maps_api" value="<?php echo get_option('pnmbr_vuupt_maps_api'); ?>" /></td>
+    </tr>
   </table>
+  <h4>Configurações de entrega base</h4>
+  <table id="vuuptDelivery">
+    <thead>
+      <tr>
+        <th>Dia da semana</th>
+        <th>Pedidos até meio-dia</th>
+        <th>Pedidos após meio-dia</th>
+      </tr>
+    </thead>
+    <?php 
+      foreach ($weekdays as $wd => $label) { ?>
+        <tr>
+          <td>
+            <?php echo $label; ?>
+          </td>
+          <?php foreach ($timesofday as $ampm) { ?>           
+            <td><input type="text" id="pnmbr_vuupt_schedule_<?php echo $wd.'_'.$ampm; ?>" name="pnmbr_vuupt_schedule_<?php echo $wd.'_'.$ampm; ?>" value="<?php echo get_option('pnmbr_vuupt_schedule_'.$wd.'_'.$ampm); ?>" /></td>
+          <?php } ?>
+        </tr>        
+      <?php }
+    ?>
+    
+  </table>
+  
+  
   <?php  submit_button(); ?>
-  </form>
+</form>
   </div>
 <?php
 }
@@ -304,14 +341,19 @@ function get_delivery_when($items, $date_created, $dotw, $ampm) {
     }
   }
 
-  if (($dotw == 'Mon' && $ampm == 'am') ) {
-    $deliveryperiod = 'next tuesday';
-  } else if (($dotw == 'Thu' && $ampm == 'pm') || (in_array ( $dotw, ['Fri', 'Sat', 'Sun']) )) {
-    $deliveryperiod = 'next tuesday';
-  } else if ($dotw == 'Thu' && $ampm == 'am') {
-    $deliveryperiod = 'next friday';
-  } else {
-    $deliveryperiod = 'next friday';
-  }
+  $deliveryperiod = get_option('pnmbr_vuupt_schedule_'.strtolower($dotw).'_'.strtolower($ampm));
+
+  // ###############################################
+  // # DEPRECATED: now calculating from get_option #
+  // ###############################################
+  // if (($dotw == 'Mon' && $ampm == 'am') ) {
+  //   $deliveryperiod = 'next tuesday';
+  // } else if (($dotw == 'Thu' && $ampm == 'pm') || (in_array ( $dotw, ['Fri', 'Sat', 'Sun']) )) {
+  //   $deliveryperiod = 'next tuesday';
+  // } else if ($dotw == 'Thu' && $ampm == 'am') {
+  //   $deliveryperiod = 'next friday';
+  // } else {
+  //   $deliveryperiod = 'next friday';
+  // }
   return date('Y-m-d', strtotime($deliveryperiod, strtotime($date_created) ));
 }
