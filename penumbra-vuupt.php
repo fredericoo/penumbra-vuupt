@@ -251,6 +251,9 @@ function pnmbr_add_to_vuupt( $order_id ){
 
         // Add order note with customer ID
         $order->add_order_note( 'VUUPT: Service ID '.$service_id ?: $vars_service['service']['id'].' agendado para '.$deliveryperiod.':'.$orderdate.'->'.$next_delivery );
+        
+        $order->update_meta_data( 'vuupt_date', $next_delivery );
+        $order->save();
 
       } else {
         $order->add_order_note( 'erro ao criar serviço: '.print_r($vars_service,true) );
